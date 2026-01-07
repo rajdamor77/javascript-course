@@ -1,4 +1,4 @@
-// ================= QUESTIONS =================
+
 const questions = [
   {
     question: "Which is largest animal in the world?",
@@ -15,135 +15,103 @@ const questions = [
       { text: "Vatican City", correct: true },
       { text: "Bhutan", correct: false },
       { text: "Nepal", correct: false },
-      { text: "Shri Lanka", correct: false }
+      { text: "Sri Lanka", correct: false }
     ]
-  },
-  {
-    question: "Which is the largest desert in the world?",
-    answers: [
-      { text: "Kalahari", correct: false },
-      { text: "Gobi", correct: false },
-      { text: "Sahara", correct: false },
-      { text: "Antarctica", correct: true }
-    ]
-  },
-  {
-    question: "Which is the smallest continent in the world?",
-    answers: [
-      { text: "Asia", correct: false },
-      { text: "Australia", correct: true },
-      { text: "Arctic", correct: false },
-      { text: "Africa", correct: false }
-    ]
-  }
+  } ,
+
+  { question: "Which is the largest desert in the world?", answers: [ { text: "Kalahari", correct: false }, { text: "Gobi", correct: false }, { text: "Sahara", correct: false }, { text: "Antarctica", correct: true } ] }, 
+  
+    { question: "Which is the smallest continent in the world?", 
+      answers: [ { text: "Asia", correct: false }, { text: "Australia", correct: true },
+         { text: "Arctic", correct: false }, 
+         { text: "Africa", correct: false } ] }
+  
 ];
 
-// ================= DOM ELEMENTS =================
+
 const questionElement = document.getElementById("question");
 const answerButtons = document.getElementById("answer-buttons");
 const nextButton = document.getElementById("next-btn");
 
-// ================= VARIABLES =================
-let currentQuestionIndex = 0;
+
+let index = 0;
 let score = 0;
 
-// ================= START QUIZ =================
+
 function startQuiz() {
-  currentQuestionIndex = 0;
+  index = 0;
   score = 0;
   nextButton.innerHTML = "Next";
   showQuestion();
 }
 
-// ================= SHOW QUESTION =================
+
 function showQuestion() {
   resetState();
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const questionNo = currentQuestionIndex + 1;
+  let q = questions[index];
+  questionElement.innerHTML = `${index + 1}. ${q.question}`;
 
-  questionElement.innerHTML =
-    questionNo + ". " + currentQuestion.question;
+  q.answers.forEach(ans => {
+    let btn = document.createElement("button");
+    btn.innerHTML = ans.text;
+    btn.classList.add("btn");
 
-  currentQuestion.answers.forEach(answer => {
-    const button = document.createElement("button");
-    button.innerHTML = answer.text;
-    button.classList.add("btn");
-    answerButtons.appendChild(button);
-
-    if (answer.correct) {
-      button.dataset.correct = answer.correct;
+    if (ans.correct) {
+      btn.dataset.correct = "true";
     }
 
-    button.addEventListener("click", selectAnswer);
+    btn.onclick = selectAnswer;
+    answerButtons.appendChild(btn);
   });
 }
 
-// ================= RESET STATE =================
+
 function resetState() {
   nextButton.style.display = "none";
-  while (answerButtons.firstChild) {
-    answerButtons.removeChild(answerButtons.firstChild);
-  }
+  answerButtons.innerHTML = "";
 }
 
-// ================= SELECT ANSWER =================
-function selectAnswer(e) {
-  const selectedBtn = e.target;
-  const isCorrect = selectedBtn.dataset.correct === "true";
 
-  if (isCorrect) {
-    selectedBtn.classList.add("correct");
+function selectAnswer(e) {
+  let selected = e.target;
+  let correct = selected.dataset.correct === "true";
+
+  if (correct) {
+    selected.classList.add("correct");
     score++;
   } else {
-    selectedBtn.classList.add("incorrect");
+    selected.classList.add("incorrect");
   }
 
-  Array.from(answerButtons.children).forEach(button => {
-    if (button.dataset.correct === "true") {
-      button.classList.add("correct");
+  Array.from(answerButtons.children).forEach(btn => {
+    if (btn.dataset.correct === "true") {
+      btn.classList.add("correct");
     }
-    button.disabled = true;
+    btn.disabled = true;
   });
 
   nextButton.style.display = "block";
 }
 
-// ================= SHOW SCORE =================
-function showScore() {
-  resetState();
-  questionElement.innerHTML =
-    `You scored ${score} out of ${questions.length}!`;
-  nextButton.innerHTML = "Play Again";
-  nextButton.style.display = "block";
-}
 
-// ================= NEXT QUESTION =================
-function handleNextButton() {
-  currentQuestionIndex++;
-  if (currentQuestionIndex < questions.length) {
+nextButton.onclick = () => {
+  index++;
+  if (index < questions.length) {
     showQuestion();
   } else {
     showScore();
   }
+};
+
+
+function showScore() {
+  resetState();
+  questionElement.innerHTML =
+    `You scored ${score} out of ${questions.length}`;
+  nextButton.innerHTML = "Play Again";
+  nextButton.style.display = "block";
+  nextButton.onclick = startQuiz;
 }
-
-// ================= NEXT BUTTON EVENT =================
-nextButton.addEventListener("click", () => {
-  if (currentQuestionIndex < questions.length) {
-    handleNextButton();
-  } else {
-    startQuiz();
-  }
-});
-
-
-Array.from(answerButtons.children).forEach(button => {
-  if (button.dataset.correct === "true") {
-    button.classList.add("correct"); // GREEN
-  }
-  button.disabled = true;
-});
-
 
 startQuiz();
